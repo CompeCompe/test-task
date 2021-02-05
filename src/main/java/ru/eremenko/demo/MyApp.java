@@ -1,48 +1,36 @@
 package ru.eremenko.demo;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.eremenko.demo.model.User;
-import ru.eremenko.demo.repo.UserRepo;
+import java.sql.SQLException;
 
-import java.time.LocalDate;
-import java.util.*;
+import ru.eremenko.demo.repo.WorkWithDb;
 
 public class MyApp {
-	@Autowired
-	private static UserRepo userRepo;
-	public static void main(String[] args) {
+
+	public static void main(String[] args) throws SQLException {
+		WorkWithDb workWithDb = new WorkWithDb();
+
 		if(args.length == 0){
 			System.out.println("Введите параметр");
 		}else {
 			if(args[0].equals("1")){
-				System.out.println("Создал БД");
+				workWithDb.createTable();
 			}
 			if(args[0].equals("2")){
-				String[] b = args[4].split("-");
-				LocalDate birthday = LocalDate.of(Integer.parseInt(b[0]),Integer.parseInt(b[1]),Integer.parseInt(b[2]));
-				userRepo.save(new User(args[1] +" "+args[2]+" "+args[3],birthday,args[5]));
+				workWithDb.createUser(args[1] +" "+args[2]+" "+args[3],args[4],args[5]);
 			}
 			if(args[0].equals("3")){
-				for(User user : getUniq()){
-					System.out.println(user.getUsername()+" "+user.getBirthday()+" "+user.getGender());
+				for(String[] user : workWithDb.getUniq()){
+					System.out.print("ФИО: "+user[0].trim()+" дата рождения: "+user[1]+" пол: "+user[2]);
+					System.out.println();
 				}
 			}
 			if(args[0].equals("4")){
 
 			}
 			if(args[0].equals("5")){
-				long before = System.currentTimeMillis();
-				userRepo.findUserByUsernameStartingWithAndGender("F","male");
-				System.out.println(System.currentTimeMillis() - before);
+				workWithDb.getStartWithF();
 			}
 		}
-	}
-
-	public static List<User> getUniq(){
-
-		List<User> uniqUsers = userRepo.findDistinctByUsernameAndBirthday();
-		Collections.sort(uniqUsers, Comparator.comparing(User::getUsername));
-		return uniqUsers;
 	}
 
 }
